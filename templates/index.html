@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coin Clicker</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        let user_id;
+
+        function setup() {
+            const tg = window.Telegram.WebApp;
+            tg.expand();
+            tg.MainButton.text = "Click to Earn Coins";
+            tg.MainButton.show();
+            tg.onEvent('mainButtonClicked', () => {
+                fetch('/click', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({user_id: user_id})
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('coin-count').innerText = data.coins;
+                });
+            });
+
+            user_id = tg.initDataUnsafe.user.id;
+            fetch(`/coins/${user_id}`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('coin-count').innerText = data.coins;
+                });
+        }
+    </script>
+</head>
+<body onload="setup()">
+    <h1>Coin Clicker</h1>
+    <p>You have <span id="coin-count">0</span> coins.</p>
+</body>
+</html>
